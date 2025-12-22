@@ -15,3 +15,43 @@ body {
 .expense-img-small { max-width: 180px; }
 .expense-img-medium { max-width: 320px; }
 .expense-img-large { max-width: 520px; }
+
+
+/* Hero section */
+.hero-section {
+  padding: 3rem 0;
+}
+
+/* Image container */
+.image-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: inline-block;
+}
+
+/* Feature cards */
+.feature-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Image size control */
+.expense-img-small {
+  max-width: 180px;
+}
+
+.expense-img-medium {
+  max-width: 320px;
+}
+
+.expense-img-large {
+  max-width: 460px;
+}

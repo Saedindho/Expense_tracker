@@ -1,55 +1,87 @@
 {% extends "base.html" %}
-{% block title %}Home - Student Expense Tracker{% endblock %}
+{% block title %}Student Expense Tracker{% endblock %}
 
 {% block content %}
-<div class="row g-4 align-items-center">
-  <div class="col-md-7">
-    <h1 class="mb-2">Student Expense Tracker</h1>
-    <p class="lead">{{ greeting }}</p>
+<div class="hero-section mb-5">
+  <div class="row align-items-center g-5">
+    <!-- LEFT -->
+    <div class="col-lg-6">
+      <h1 class="display-5 fw-bold mb-3">
+        Take Control of Your Spending
+      </h1>
+      <p class="lead text-muted mb-4">
+        Student Expense Tracker helps you record, categorise, and analyse
+        your daily expenses so you can manage your money more effectively.
+      </p>
 
-    <div class="card p-3 shadow-sm">
-      <h5 class="mb-2">Image size selector (required)</h5>
-      <p class="text-muted mb-3">Choose how big the image appears.</p>
+      <div class="d-flex gap-3">
+        {% if session.get('user_id') %}
+          <a href="{{ url_for('add_expense') }}" class="btn btn-primary btn-lg">
+            Add Expense
+          </a>
+          <a href="{{ url_for('expenses') }}" class="btn btn-outline-secondary btn-lg">
+            View Expenses
+          </a>
+        {% else %}
+          <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+            Get Started
+          </a>
+          <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg">
+            Login
+          </a>
+        {% endif %}
+      </div>
+    </div>
 
-      <div class="btn-group mb-3" role="group" aria-label="Image size">
+    <!-- RIGHT -->
+    <div class="col-lg-6 text-center">
+      <div class="image-card shadow-sm">
+        <img
+          src="{{ url_for('static', filename='images/expense.png') }}"
+          class="img-fluid expense-img expense-img-{{ img_size }}"
+          alt="Expense tracking illustration"
+        >
+        <div class="text-muted small mt-2">
+          Image size: <strong>{{ img_size }}</strong>
+        </div>
+      </div>
+
+      <!-- Image size selector (still required, but subtle) -->
+      <div class="btn-group mt-3" role="group">
         <a class="btn btn-outline-dark btn-sm" href="{{ url_for('index', img='small') }}">Small</a>
         <a class="btn btn-outline-dark btn-sm" href="{{ url_for('index', img='medium') }}">Medium</a>
         <a class="btn btn-outline-dark btn-sm" href="{{ url_for('index', img='large') }}">Large</a>
       </div>
-
-      <img
-        src="{{ url_for('static', filename='images/expense.png') }}"
-        alt="Expense tracking"
-        class="img-fluid rounded expense-img expense-img-{{ img_size }}"
-      >
-      <div class="small text-muted mt-2">
-        Current size: <strong>{{ img_size }}</strong>
-      </div>
     </div>
+  </div>
+</div>
 
-    <div class="mt-4">
-      {% if session.get('user_id') %}
-        <a class="btn btn-primary" href="{{ url_for('add_expense') }}">Add Expense</a>
-        <a class="btn btn-outline-secondary" href="{{ url_for('expenses') }}">View Expenses</a>
-      {% else %}
-        <a class="btn btn-primary" href="{{ url_for('login') }}">Login to start</a>
-        <div class="small text-muted mt-2">
-          
-        </div>
-      {% endif %}
+<!-- FEATURES -->
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="feature-card h-100">
+      <h5>Track Daily Expenses</h5>
+      <p class="text-muted mb-0">
+        Record your spending quickly with category and date.
+      </p>
     </div>
   </div>
 
-  <div class="col-md-5">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h5>What this app does</h5>
-        <ul class="mb-0">
-          <li>Add daily expenses with category</li>
-          <li>Filter by category/date/essential</li>
-          <li>See totals and summaries</li>
-        </ul>
-      </div>
+  <div class="col-md-4">
+    <div class="feature-card h-100">
+      <h5>Smart Filtering</h5>
+      <p class="text-muted mb-0">
+        Filter expenses by category, date range, or essential items.
+      </p>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="feature-card h-100">
+      <h5>Clear Insights</h5>
+      <p class="text-muted mb-0">
+        View totals and summaries to understand your spending habits.
+      </p>
     </div>
   </div>
 </div>
