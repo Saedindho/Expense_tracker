@@ -1,0 +1,17 @@
+/* Use classes + IDs (Must-have) */
+body {
+  background: #f6f7fb;
+}
+
+.footer {
+  background: white;
+}
+
+.expense-img {
+  border: 2px solid #e9ecef;
+}
+
+/* Selectable image sizes */
+.expense-img-small { max-width: 180px; }
+.expense-img-medium { max-width: 320px; }
+.expense-img-large { max-width: 520px; }

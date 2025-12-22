@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Login - Student Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h3 class="mb-3">Login</h3>
+
+        <form method="post" class="needs-validation">
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input class="form-control" name="username" value="{{ username or '' }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input class="form-control" type="password" name="password" required>
+          </div>
+
+          <button class="btn btn-primary w-100" type="submit">Login</button>
+
+          <div class="small text-muted mt-3">
+            <!--  Demo: <strong>student/student123</strong> or <strong>admin/admin123</strong> -->
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

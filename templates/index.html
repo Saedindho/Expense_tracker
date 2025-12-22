@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Home - Student Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="row g-4 align-items-center">
+  <div class="col-md-7">
+    <h1 class="mb-2">Student Expense Tracker</h1>
+    <p class="lead">{{ greeting }}</p>
+
+    <div class="card p-3 shadow-sm">
+      <h5 class="mb-2">Image size selector (required)</h5>
+      <p class="text-muted mb-3">Choose how big the image appears.</p>
+
+      <div class="btn-group mb-3" role="group" aria-label="Image size">
+        <a class="btn btn-outline-dark btn-sm" href="{{ url_for('index', img='small') }}">Small</a>
+        <a class="btn btn-outline-dark btn-sm" href="{{ url_for('index', img='medium') }}">Medium</a>
+        <a class="btn btn-outline-dark btn-sm" href="{{ url_for('index', img='large') }}">Large</a>
+      </div>
+
+      <img
+        src="{{ url_for('static', filename='images/expense.png') }}"
+        alt="Expense tracking"
+        class="img-fluid rounded expense-img expense-img-{{ img_size }}"
+      >
+      <div class="small text-muted mt-2">
+        Current size: <strong>{{ img_size }}</strong>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      {% if session.get('user_id') %}
+        <a class="btn btn-primary" href="{{ url_for('add_expense') }}">Add Expense</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('expenses') }}">View Expenses</a>
+      {% else %}
+        <a class="btn btn-primary" href="{{ url_for('login') }}">Login to start</a>
+        <div class="small text-muted mt-2">
+          
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5>What this app does</h5>
+        <ul class="mb-0">
+          <li>Add daily expenses with category</li>
+          <li>Filter by category/date/essential</li>
+          <li>See totals and summaries</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
