@@ -41,17 +41,23 @@
           class="img-fluid expense-img expense-img-{{ img_size }}"
           alt="Expense tracking illustration"
         >
-        <div class="text-muted small mt-2">
+       <!-- <div class="text-muted small mt-2">
           Image size: <strong>{{ img_size }}</strong>
-        </div>
+        </div> -->
       </div>
+         
+      <img
+  src="{{ url_for('static', filename='images/expense.png') }}"
+  class="img-fluid expense-img expense-img-{{ img_size }}"
+  alt="Expense tracking illustration"
+>
 
       <!-- Image size selector (still required, but subtle) -->
-      <div class="btn-group mt-3" role="group">
+      <!--<div class="btn-group mt-3" role="group">
         <a class="btn btn-outline-dark btn-sm" href="{{ url_for('index', img='small') }}">Small</a>
         <a class="btn btn-outline-dark btn-sm" href="{{ url_for('index', img='medium') }}">Medium</a>
         <a class="btn btn-outline-dark btn-sm" href="{{ url_for('index', img='large') }}">Large</a>
-      </div>
+      </div> -->
     </div>
   </div>
 </div>

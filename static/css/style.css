@@ -43,8 +43,8 @@ body {
   transform: translateY(-4px);
 }
 
-/* Image size control */
-.expense-img-small {
+/* Image size control 
+ .expense-img-small {
   max-width: 180px;
 }
 
@@ -54,4 +54,10 @@ body {
 
 .expense-img-large {
   max-width: 460px;
+}
+*/
+.expense-img {
+  max-width: 380px;
+  width: 100%;
+  height: auto;
 }
