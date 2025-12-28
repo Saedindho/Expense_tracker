@@ -15,3 +15,86 @@ body {
 .expense-img-small { max-width: 180px; }
 .expense-img-medium { max-width: 320px; }
 .expense-img-large { max-width: 520px; }
+
+
+/*new*/
+/* ===== Global Design System ===== */
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont;
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: -0.02em;
+}
+
+.card {
+  border-radius: 16px;
+  border: none;
+}
+
+.btn {
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  border: none;
+}
+
+.btn-primary:hover {
+  opacity: 0.95;
+}
+
+.navbar-brand {
+  letter-spacing: -0.5px;
+}
+
+.alert {
+  border-radius: 12px;
+}
+
+input, select, textarea {
+  border-radius: 10px !important;
+}
+
+.expense-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.expense-item {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+
+.expense-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+}
+
+.expense-title {
+  font-weight: 600;
+}
+
+.expense-meta {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.expense-amount {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.expense-actions .btn {
+  margin-left: 6px;
+}

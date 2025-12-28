@@ -5,16 +5,30 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
     <h2 class="mb-1">Expenses</h2>
+    {% if admin and filters.user_id and expenses %}
+<div class="alert alert-info d-flex align-items-center mt-3">
+  <strong class="me-2">Viewing expenses for:</strong>
+  <span class="fw-semibold">{{ expenses[0].owner }}</span>
+</div>
+{% endif %}
+
     <div class="text-muted small">
-      {% if admin %}Admin view: all users{% else %}Your expenses{% endif %}
-    </div>
+  {% if admin and not filters.user_id %}
+    Admin view: all users
+  {% elif admin and filters.user_id %}
+    Admin view: filtered by user
+  {% else %}
+    Your expenses
+  {% endif %}
+</div>
+
   </div>
   <a class="btn btn-primary" href="{{ url_for('add_expense') }}">+ Add Expense</a>
 </div>
 
 <div class="card shadow-sm mb-4">
   <div class="card-body">
-    <h5 class="mb-3">Filters (SQL based on user input)</h5>
+    <h5 class="mb-3"></h5>
 
     <form method="get" class="row g-2">
       <div class="col-md-3">
@@ -51,6 +65,22 @@
       <div class="col-md-2 d-flex align-items-end">
         <button class="btn btn-outline-dark w-100" type="submit">Apply</button>
       </div>
+
+      {% if admin %}
+<div class="col-md-3">
+  <label class="form-label">User</label>
+  <select name="user_id" class="form-select">
+    <option value="">All users</option>
+    {% for u in users %}
+      <option value="{{ u.id }}"
+        {% if filters.user_id == (u.id|string) %}selected{% endif %}>
+        {{ u.username }}
+      </option>
+    {% endfor %}
+  </select>
+</div>
+{% endif %}
+
     </form>
   </div>
 </div>

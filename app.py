@@ -211,14 +211,26 @@ def expenses():
     date_from = request.args.get("from", "").strip()
     date_to = request.args.get("to", "").strip()
     essential = request.args.get("essential", "").strip()  # "", "1", "0"
+    user_id = request.args.get("user_id", "").strip()
 
     # Build query dynamically using safe parameters
     where_clauses = []
     params: List[Any] = []
 
-    if not is_admin():
+    if is_admin():
+         if user_id.isdigit():
+             where_clauses.append("e.user_id = ?")
+             params.append(int(user_id))
+    else:
         where_clauses.append("e.user_id = ?")
         params.append(current_user_id())
+    
+    users = []
+    if is_admin():
+        users = db.execute(
+            "SELECT id, username FROM users ORDER BY username"
+    ).fetchall()
+
 
     if category_id.isdigit():
         where_clauses.append("e.category_id = ?")
@@ -271,19 +283,21 @@ def expenses():
     categories = db.execute("SELECT id, name FROM categories ORDER BY name").fetchall()
 
     return render_template(
-        "expenses.html",
-        expenses=rows,
-        categories=categories,
-        total=total,
-        totals_by_category=totals_by_category,
-        filters={
-            "category_id": category_id,
-            "from": date_from,
-            "to": date_to,
-            "essential": essential,
-        },
-        admin=is_admin(),
-    )
+    "expenses.html",
+    expenses=rows,
+    categories=categories,
+    users=users,
+    total=total,
+    totals_by_category=totals_by_category,
+    filters={
+        "category_id": category_id,
+        "from": date_from,
+        "to": date_to,
+        "essential": essential,
+        "user_id": user_id,
+    },
+    admin=is_admin(),
+)
 
 
 @app.route("/expenses/add", methods=["GET", "POST"])
