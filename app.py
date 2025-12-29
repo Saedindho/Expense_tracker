@@ -16,6 +16,7 @@ from flask import (
     session,
     url_for,
 )
+from datetime import date
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(APP_DIR, "expenses.db")
@@ -201,36 +202,27 @@ def logout():
 @app.route("/expenses")
 @login_required
 def expenses():
-    """
-    Shows expenses with filters (Must-have: SQL select according to user input).
-    """
     db = get_db()
 
-    # Filters from user input
+    # Filters
     category_id = request.args.get("category_id", "").strip()
     date_from = request.args.get("from", "").strip()
     date_to = request.args.get("to", "").strip()
-    essential = request.args.get("essential", "").strip()  # "", "1", "0"
+    essential = request.args.get("essential", "").strip()
     user_id = request.args.get("user_id", "").strip()
+    month = request.args.get("month", date.today().strftime("%Y-%m"))
 
-    # Build query dynamically using safe parameters
     where_clauses = []
-    params: List[Any] = []
+    params = []
 
+    # User filtering (admin vs normal user)
     if is_admin():
-         if user_id.isdigit():
-             where_clauses.append("e.user_id = ?")
-             params.append(int(user_id))
+        if user_id.isdigit():
+            where_clauses.append("e.user_id = ?")
+            params.append(int(user_id))
     else:
         where_clauses.append("e.user_id = ?")
         params.append(current_user_id())
-    
-    users = []
-    if is_admin():
-        users = db.execute(
-            "SELECT id, username FROM users ORDER BY username"
-    ).fetchall()
-
 
     if category_id.isdigit():
         where_clauses.append("e.category_id = ?")
@@ -248,56 +240,96 @@ def expenses():
         where_clauses.append("e.is_essential = ?")
         params.append(int(essential))
 
-    where_sql = ""
-    if where_clauses:
-        where_sql = "WHERE " + " AND ".join(where_clauses)
+    where_sql = "WHERE " + " AND ".join(where_clauses) if where_clauses else ""
 
+    # Expenses query
     rows = db.execute(
         f"""
-        SELECT
-            e.id,
-            e.amount,
-            e.description,
-            e.expense_date,
-            e.is_essential,
-            c.name AS category_name,
-            u.username AS owner
+        SELECT e.*, c.name AS category_name, u.username AS owner
         FROM expenses e
         JOIN categories c ON c.id = e.category_id
         JOIN users u ON u.id = e.user_id
         {where_sql}
-        ORDER BY e.expense_date DESC, e.id DESC
+        ORDER BY e.expense_date DESC
         """,
         tuple(params),
     ).fetchall()
 
-    # Loop/list requirement: compute totals in Python
+    # Totals
     total = 0.0
-    totals_by_category: Dict[str, float] = {}
+    totals_by_category = {}
+
     for r in rows:
         amt = float(r["amount"])
         total += amt
         cname = r["category_name"]
         totals_by_category[cname] = totals_by_category.get(cname, 0.0) + amt
 
-    categories = db.execute("SELECT id, name FROM categories ORDER BY name").fetchall()
+    # Admin user list
+    users = []
+    if is_admin():
+        users = db.execute(
+            "SELECT id, username FROM users ORDER BY username"
+        ).fetchall()
+
+    # 🎯 Budget logic (FIXED & SAFE)
+    target_user = int(user_id) if is_admin() and user_id.isdigit() else current_user_id()
+
+    budget_row = db.execute(
+        """
+        SELECT amount
+        FROM budgets
+        WHERE user_id = ? AND month = ?
+        """,
+        (target_user, month),
+    ).fetchone()
+
+    monthly_budget = float(budget_row["amount"]) if budget_row else 0.0
+    remaining_budget = monthly_budget - total
 
     return render_template(
-    "expenses.html",
-    expenses=rows,
-    categories=categories,
-    users=users,
-    total=total,
-    totals_by_category=totals_by_category,
-    filters={
-        "category_id": category_id,
-        "from": date_from,
-        "to": date_to,
-        "essential": essential,
-        "user_id": user_id,
-    },
-    admin=is_admin(),
-)
+        "expenses.html",
+        expenses=rows,
+        categories=db.execute("SELECT id, name FROM categories").fetchall(),
+        users=users,
+        total=total,
+        totals_by_category=totals_by_category,
+        monthly_budget=monthly_budget,
+        remaining_budget=remaining_budget,
+        month=month,
+        filters={
+            "category_id": category_id,
+            "from": date_from,
+            "to": date_to,
+            "essential": essential,
+            "user_id": user_id,
+        },
+        admin=is_admin(),
+    )
+
+@app.route("/budget/set", methods=["POST"])
+@login_required
+def set_budget():
+    db = get_db()
+
+    month = request.form.get("month")
+    amount = request.form.get("amount")
+
+    if not month or not amount:
+        return redirect(url_for("expenses"))
+
+    db.execute(
+        """
+        INSERT INTO budgets (user_id, month, amount)
+        VALUES (?, ?, ?)
+        ON CONFLICT(user_id, month)
+        DO UPDATE SET amount = excluded.amount
+        """,
+        (current_user_id(), month, float(amount)),
+    )
+    db.commit()
+
+    return redirect(url_for("expenses", month=month))
 
 
 @app.route("/expenses/add", methods=["GET", "POST"])
@@ -504,4 +536,4 @@ def register():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5002)
