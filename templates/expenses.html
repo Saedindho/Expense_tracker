@@ -115,7 +115,8 @@
 
 <div class="card shadow-sm">
   <div class="card-body">
-    <div class="card shadow-sm mb-4">
+   {% if not admin %}
+<div class="card shadow-sm mb-4">
   <div class="card-body">
     <h5 class="mb-3">Monthly Budget ({{ month }})</h5>
 
@@ -134,8 +135,9 @@
       </div>
     {% endif %}
 
-    <form method="post" action="{{ url_for('set_budget') }}" class="row g-2">
+    <form method="post" action="{{ url_for('set_budget') }}" class="row g-2 mt-3">
       <input type="hidden" name="month" value="{{ month }}">
+
       <div class="col-md-6">
         <input
           type="number"
@@ -146,12 +148,18 @@
           required
         >
       </div>
+
       <div class="col-md-3">
         <button class="btn btn-primary w-100" type="submit">
           Save Budget
         </button>
       </div>
     </form>
+
+  </div>
+</div>
+{% endif %}
+
   </div>
 </div>
 
