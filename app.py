@@ -16,13 +16,18 @@ from flask import (
     session,
     url_for,
 )
-from datetime import date
+from datetime import date, datetime
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(APP_DIR, "expenses.db")
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-change-this"  # For coursework/dev. Change for production.
+
+
+@app.context_processor
+def inject_current_year():
+    return {"current_year": datetime.now().year}
 
 
 # ----------------------------
