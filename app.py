@@ -209,7 +209,16 @@ def logout():
 def expenses():
     db = get_db()
 
+    # ----------------------
+    # Pagination
+    # ----------------------
+    page = request.args.get("page", 1, type=int)
+    per_page = 10
+    offset = (page - 1) * per_page
+
+    # ----------------------
     # Filters
+    # ----------------------
     category_id = request.args.get("category_id", "").strip()
     date_from = request.args.get("from", "").strip()
     date_to = request.args.get("to", "").strip()
@@ -220,7 +229,9 @@ def expenses():
     where_clauses = []
     params = []
 
-    # User filtering (admin vs normal user)
+    # ----------------------
+    # User filtering
+    # ----------------------
     if is_admin():
         if user_id.isdigit():
             where_clauses.append("e.user_id = ?")
@@ -247,7 +258,9 @@ def expenses():
 
     where_sql = "WHERE " + " AND ".join(where_clauses) if where_clauses else ""
 
-    # Expenses query
+    # ----------------------
+    # Expenses (paginated)
+    # ----------------------
     rows = db.execute(
         f"""
         SELECT e.*, c.name AS category_name, u.username AS owner
@@ -256,29 +269,64 @@ def expenses():
         JOIN users u ON u.id = e.user_id
         {where_sql}
         ORDER BY e.expense_date DESC
+        LIMIT ? OFFSET ?
+        """,
+        tuple(params + [per_page, offset]),
+    ).fetchall()
+
+    # ----------------------
+    # Total count (for pages)
+    # ----------------------
+    total_count = db.execute(
+        f"""
+        SELECT COUNT(*)
+        FROM expenses e
+        {where_sql}
+        """,
+        tuple(params),
+    ).fetchone()[0]
+
+    total_pages = (total_count + per_page - 1) // per_page
+
+    # ----------------------
+    # Totals (filtered set)
+    # ----------------------
+    total = 0.0
+    totals_by_category = {}
+
+    all_rows = db.execute(
+        f"""
+        SELECT e.amount, c.name AS category_name
+        FROM expenses e
+        JOIN categories c ON c.id = e.category_id
+        {where_sql}
         """,
         tuple(params),
     ).fetchall()
 
-    # Totals
-    total = 0.0
-    totals_by_category = {}
-
-    for r in rows:
+    for r in all_rows:
         amt = float(r["amount"])
         total += amt
         cname = r["category_name"]
         totals_by_category[cname] = totals_by_category.get(cname, 0.0) + amt
 
+    # ----------------------
     # Admin user list
+    # ----------------------
     users = []
     if is_admin():
         users = db.execute(
             "SELECT id, username FROM users ORDER BY username"
         ).fetchall()
 
-    # 🎯 Budget logic (FIXED & SAFE)
-    target_user = int(user_id) if is_admin() and user_id.isdigit() else current_user_id()
+    # ----------------------
+    # Budget logic
+    # ----------------------
+    target_user = (
+        int(user_id)
+        if is_admin() and user_id.isdigit()
+        else current_user_id()
+    )
 
     budget_row = db.execute(
         """
@@ -292,16 +340,23 @@ def expenses():
     monthly_budget = float(budget_row["amount"]) if budget_row else 0.0
     remaining_budget = monthly_budget - total
 
+    # ----------------------
+    # Render
+    # ----------------------
     return render_template(
         "expenses.html",
         expenses=rows,
-        categories=db.execute("SELECT id, name FROM categories").fetchall(),
+        categories=db.execute(
+            "SELECT id, name FROM categories"
+        ).fetchall(),
         users=users,
         total=total,
         totals_by_category=totals_by_category,
         monthly_budget=monthly_budget,
         remaining_budget=remaining_budget,
         month=month,
+        page=page,
+        total_pages=total_pages,
         filters={
             "category_id": category_id,
             "from": date_from,

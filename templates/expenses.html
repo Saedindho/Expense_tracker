@@ -205,6 +205,39 @@
             {% endfor %}
           </tbody>
         </table>
+        <nav class="mt-4">
+  <ul class="pagination justify-content-center">
+
+    {% if page > 1 %}
+    <li class="page-item">
+      <a class="page-link"
+         href="{{ url_for('expenses', page=page-1, **filters) }}">
+        Previous
+      </a>
+    </li>
+    {% endif %}
+
+    {% for p in range(1, total_pages + 1) %}
+    <li class="page-item {% if p == page %}active{% endif %}">
+      <a class="page-link"
+         href="{{ url_for('expenses', page=p, **filters) }}">
+        {{ p }}
+      </a>
+    </li>
+    {% endfor %}
+
+    {% if page < total_pages %}
+    <li class="page-item">
+      <a class="page-link"
+         href="{{ url_for('expenses', page=page+1, **filters) }}">
+        Next
+      </a>
+    </li>
+    {% endif %}
+
+  </ul>
+</nav>
+
       </div>
     {% else %}
       <div class="text-muted">No expenses found for these filters.</div>
