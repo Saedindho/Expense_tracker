@@ -566,6 +566,21 @@ def categories():
     cats = db.execute("SELECT id, name FROM categories ORDER BY name").fetchall()
     return render_template("categories.html", categories=cats)
 
+@app.route("/categories/<int:category_id>/delete", methods=["POST"])
+@login_required
+@admin_required
+def delete_category(category_id):
+    db = get_db()
+    try:
+        db.execute("DELETE FROM categories WHERE id = ?", (category_id,))
+        db.commit()
+        flash("Category deleted successfully.", "success")
+    except sqlite3.IntegrityError:
+        flash("Cannot delete: this category is used by existing expenses.", "danger")
+
+    return redirect(url_for("categories"))
+
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":

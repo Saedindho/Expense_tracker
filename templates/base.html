@@ -26,9 +26,14 @@
     <div id="nav" class="collapse navbar-collapse">
       <ul class="navbar-nav me-auto">
         <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('about') }}">About</a></li>
         {% if session.get('user_id') %}
           <li class="nav-item"><a class="nav-link" href="{{ url_for('expenses') }}">Expenses</a></li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('add_expense') }}">Add Expense</a></li>
+          {% if session.get('role') == 'admin' %}
+  <li class="nav-item"><a class="nav-link" href="{{ url_for('categories') }}">Categories</a></li>
+{% endif %}
+
         {% endif %}
       </ul>
 
@@ -69,7 +74,7 @@
 </main>
 
 <footer class="text-center text-muted small py-4">
-  © {{ current_year }} ExpenseTracker — Built by Saed Mohamed
+  © {{ current_year }} ExpenseTracker — Built by rashidat abubakar
 </footer>
 
 </body>

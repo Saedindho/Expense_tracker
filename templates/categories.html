@@ -1,35 +1,67 @@
 {% extends "base.html" %}
-{% block title %}Categories - Student Expense Tracker{% endblock %}
+{% block title %}Manage Categories - Student Expense Tracker{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-4">
   <h2 class="mb-0">Manage Categories</h2>
 </div>
 
-<div class="row g-3">
+<div class="row g-4">
+
+  <!-- Add Category -->
   <div class="col-md-5">
     <div class="card shadow-sm">
       <div class="card-body">
-        <h5>Add Category</h5>
+        <h5 class="mb-3">Add Category</h5>
+
         <form method="post" class="d-flex gap-2">
-          <input class="form-control" name="name" placeholder="e.g. Entertainment" required>
-          <button class="btn btn-primary" type="submit">Add</button>
+          <input
+            type="text"
+            name="name"
+            class="form-control"
+            placeholder="e.g. Entertainment"
+            required
+          >
+          <button class="btn btn-primary" type="submit">
+            Add
+          </button>
         </form>
       </div>
     </div>
   </div>
 
+  <!-- Existing Categories -->
   <div class="col-md-7">
     <div class="card shadow-sm">
       <div class="card-body">
-        <h5>Existing Categories</h5>
-        <ul class="mb-0">
-          {% for c in categories %}
-            <li>{{ c.name }}</li>
-          {% endfor %}
-        </ul>
+        <h5 class="mb-3">Existing Categories</h5>
+
+        {% if categories %}
+          <ul class="list-group">
+            {% for c in categories %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>{{ c.name }}</span>
+
+                <form
+                  method="POST"
+                  action="{{ url_for('delete_category', category_id=c.id) }}"
+                  onsubmit="return confirm('Delete {{ c.name }}? This cannot be undone.')"
+                  class="m-0"
+                >
+                  <button class="btn btn-sm btn-danger" type="submit">
+                    Delete
+                  </button>
+                </form>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">No categories found.</p>
+        {% endif %}
+
       </div>
     </div>
   </div>
+
 </div>
 {% endblock %}
