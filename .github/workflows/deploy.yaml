@@ -33,7 +33,7 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
 
-- name: Update Manifest Repository
+    - name: Update Manifest Repository
       env:
         MANIFEST_REPO: Saedindho/saed-k8s-manifests # Change this!
         NEW_TAG: ${{ github.sha }}
