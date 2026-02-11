@@ -1,0 +1,54 @@
+name: Build and Push to ECR
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-2
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, Tag, and Push Image to ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: student-expense-tracker
+        IMAGE_TAG: v1 # Or use ${{ github.sha }} for unique versioning
+      run: |
+        # Note the platform flag is used here too!
+        docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+
+- name: Update Manifest Repository
+      env:
+        MANIFEST_REPO: Saedindho/saed-k8s-manifests # Change this!
+        NEW_TAG: ${{ github.sha }}
+      run: |
+        git config --global user.email "ci-bot@github.com"
+        git config --global user.name "CI Bot"
+        
+        # Clone the manifest repo
+        git clone https://${{ secrets.GH_PAT }}@github.com/$MANIFEST_REPO.git manifest-repo
+        cd manifest-repo
+        
+        # Use 'sed' to update the image tag in your YAML
+        # This replaces the old tag with the new GitHub Commit SHA
+        sed -i "s|student-expense-tracker:.*|student-expense-tracker:$NEW_TAG|g" expense-tracker.yaml
+        
+        git add .
+        git commit -m "Update image to $NEW_TAG"
+        git push
